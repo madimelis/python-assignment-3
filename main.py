@@ -2,196 +2,140 @@ import os
 import csv 
 import json
 
-#Practice 4
-#D1
-folder = r"C:\Users\Админ\OneDrive\Рабочий стол\python-assignment-3"
-foldername = "output"
-"""print("Checkintg file...")
-if not os.path.exists(os.path.join(folder, "students.csv")):   
-    print("Error: file students.csv not found. Please download the file from LMS")
-    exit() 
-print("File found: students.csv")
+#task 1
+class FileManager:
+    def __init__(self, folder, filename):
+        self.folder = folder
+        self.filename = filename
 
-print(" ")
-print("Checking output folder...")
-if not os.path.exists(os.path.join(folder, foldername)):
-    os.makedirs(os.path.join(folder, foldername))  
-    print("Output folder created: output/")
-else:    print("Output folder already exists: output/")
-
-print(" ")
-
-#D2
-
-students = []
-with open(os.path.join(folder, "students.csv"), encoding="utf-8") as file:
-    reader = csv.DictReader(file)
-    for row in reader:
-        students.append(row)
-print(f"Total students: {len(students)}")
-print(" ")
-print("First 5 rows:")
-print("-" * 30)
-for student in students[:5]:
-    print(f"{student['student_id']} | {student['age']} | {student['gender']} | {student['country']} | GPA: {student['GPA']}")
-print("-" * 30)
-print(" ")
-print(" ")
-
-#D3
-
-sorted_students = sorted(students, key=lambda x: float(x['final_exam_score']), reverse = True)
-top10 = sorted_students[:10]
-print("-" * 30)
-print("Top 10 Students by Exam Score")
-print("-" * 30)
-for i in range(len(top10)):
-    student = top10[i]
-    print(f"{i+1}. {student['student_id']} | {student['country']} | {student['major']} | Score: {student['final_exam_score']} | GPA: {student['GPA']}")
-print(" ")
-print(" ")
-
-#D4
-
-result = {
-    "analysis": "Top 10 Students by Exam Score",
-    "total_students": len(students),
-    "top_10": []
-}
-for i in range(len(top10)):
-    student = top10[i]
-    result["top_10"].append({
-        "rank": i + 1,
-        "student_id": student["student_id"],
-        "country": student["country"],
-        "major": student["major"],
-        "final_exam_score": float(student["final_exam_score"]),
-        "GPA": float(student["GPA"])
-    })
-
-with open(os.path.join(folder, foldername, "result.json"), "w", encoding="utf-8") as f:
-    json.dump(result, f, indent=4)
-
-print("=" * 30)
-print("ANALYSIS RESULT")
-print("=" * 30)
-print(f"Analysis : {result['analysis']}")
-print(f"Total students : {result['total_students']}")
-print("Top 10 saved to output/result.json")
-print("=" * 30)
-print("Result saved to output/result.json")
-"""
-
-# Practice 5
-#D1
-def check_files():
-    print("Checking file...")
-    file_path = os.path.join(folder, "students.csv")
-    if not os.path.exists(file_path):
-        print("Error: students.csv not found. Please download the file from LMS.")
-        return False
-    print("File found: students.csv")
-    print(" ")
-    print("Checking output folder...")
-    output_path = os.path.join(folder, foldername)
-    if not os.path.exists(output_path):
-        os.makedirs(output_path)
-        print("Output folder created: output/")
-    else:
-        print("Output folder already exists: output/")
-    return True
-
-
-def load_data(filename):    #D4
-    print("Loading data...")
+    def check_file(self):
+        print("Checking file...")
+        file_path = os.path.join(self.folder, self.filename)
+        if not os.path.exists(file_path):
+            print(f"Error: {self.filename} not found")
+            return False
+        print(f"File found: {self.filename}")
+        print(" ")
+        return True
     
-    try:
-        students = []
-        with open(filename, encoding="utf-8") as file:
-            reader = csv.DictReader(file)
-            for row in reader:
-                students.append(row)
+    def check_output_folder(self, folder = "output"):
+        print("Checking output folder...")
+        output_path = os.path.join(self.folder, folder)
+        if not os.path.exists(output_path):
+            os.makedirs(output_path)
+            print(f"Output folder created: {folder}/")
+        else:
+            print(f"Output folder already exists: {folder}/")
+        print(" ")
+        return True
+
+#task 2
+
+class DataLoader:
+    def __init__(self, folder, filename):
+        self.folder = folder
+        self.filename = filename
+        self.students = []
+
+    def load(self):
+        print("Loading data...")
         
-        print(f"Data loaded successfully: {len(students)} students")
-        return students
+        try:
+            with open(os.path.join(self.folder, self.filename), encoding="utf-8") as file:
+                reader = csv.DictReader(file)
+                self.students = [row for row in reader]
+            
+            print(f"Data loaded successfully: {len(self.students)} students")
+            print(" ")
+            return self.students
 
-    except FileNotFoundError:
-        print(f"Error: File '{filename}' not found. Please check the filename.")
-        return []
+        except FileNotFoundError:
+            print(f"Error: File '{self.filename}' not found. Please check the filename.")
+            return self.students
 
-    except Exception as e:
-        print(f"Error: {e}")
-        return []
+        except Exception as e:
+            print(f"Error: {e}")
+            return []
     
 
-def preview_data(students, n = 5):
-    print(f"First {n} rows:")
-    print("-" * 30)
-    for student in students[:n]:
-        print(f"{student['student_id']} | {student['age']} | {student['gender']} | {student['country']} | GPA: {student['GPA']}")
-    print("-" * 30)
+    def preview_data(self, n = 5):
+        print(f"First {n} rows:")
+        print("-" * 30)
+        for student in self.students[:n]:
+            print(f"{student['student_id']} | {student['age']} | {student['gender']} | {student['country']} | GPA: {student['GPA']}")
+        print("-" * 30)
 
-#D2
+#task 3
 
-def get_top_students(students, n = 10):
-    sorted_students = sorted(students, key=lambda x: float(x['final_exam_score']), reverse=True)
-    return sorted_students[:n]
+class DataAnalyzer:
+    def __init__(self, students):
+        self.students = students
 
-def print_top_students(top_students, title):
-    print("-" * 30)
-    print(title)
-    print("-" * 30)
+    def analyze(self):
+        valid_students = []
+        for s in self.students:
+            try:
+                s['final_exam_score'] = float(s['final_exam_score'])
+                s['GPA'] = float(s['GPA'])
+                valid_students.append(s)
+            except ValueError:
+                print(f"Warning: could not convert value for student {s.get('student_id')} — skipping row.")
+                continue
+        sorted_students = sorted(valid_students, key=lambda x: x['final_exam_score'], reverse=True)
+        self.result = {"top10": sorted_students[:10],}
+        return self.result
     
-    for i in range(len(top_students)):
-        s = top_students[i]
-        print(f"{i+1}. {s['student_id']} | {s['country']} | {s['major']} | Score: {s['final_exam_score']} | GPA: {s['GPA']}")
-    print("-" * 30)
+    def print_results(self):
+        print("-" * 30)
+        print("Top 10 Students by Exam Score")
+        print("-" * 30)
 
-#D3
-def lambda_operations(students):
-    print("-" * 30)
-    print("Lambda / Map / Filter")
-    print("-" * 30)
-    print(" ")
+        for i in range(len(self.result.get("top10", []))):
+            s = self.result.get("top10", [])[i]
+            print(f"{i+1}. {s['student_id']} | {s['country']} | {s['major']} | Score: {s['final_exam_score']} | GPA: {s['GPA']}")
 
-    top_scorers = list(filter(lambda s: float(s['final_exam_score']) > 95, students))
-    print(f"Students with score > 95 : {len(top_scorers)}")
-    gpa_values = list(map(lambda s: float(s['GPA']),students))
-    print(f"GPA values (first 5) : {gpa_values[:5]}")
-    print(" ")
-    good_assignments = list(filter(lambda s: float(s['assignment_score']) > 90, students))
-    print(f"Students assignment > 90 : {len(good_assignments)}")
-    print("-" * 30)
+#task 4
 
+class ResultSaver:
+    def __init__(self, result, folder, output_path):
+        self.result = result
+        self.folder = folder
+        self.output_path = output_path
 
-# Main execution
+    def save_json(self):
+        try:
+            with open(os.path.join(self.folder, self.output_path), 'w', encoding='utf-8') as f:
+                json.dump(self.result, f, indent=4)
+
+            print(f"Result saved to {self.output_path}")
+
+        except Exception as e:
+            print(f"Error saving file: {e}")
+    
+#task 5
+
 def main():
-    if not check_files():
+    folder = r"C:\Users\Админ\OneDrive\Рабочий стол\python-assignment-3"
+    file_manager = FileManager(folder, "students.csv")
+
+    if not file_manager.check_file():
+        print('Stopping program.')
         return
-    
-    file_path = os.path.join(folder, "students.csv")
-    print(" ")
-    students = load_data(file_path)
-    print(" ")
-    preview_data(students) 
-    print(" ")
 
-    top10 = get_top_students(students)
-    print_top_students(top10, "Top 10 Students by Exam Score")
-    print(" ")
-    top5 = get_top_students(students, 5)
-    print_top_students(top5, "Top 5 Students by Exam Score")
+    file_manager.check_output_folder()
 
-    lambda_operations(students)
+    dl = DataLoader(folder, "students.csv")
+    dl.load()
+    dl.preview_data()
 
-    load_data("wrong_file.csv") 
+    analyser = DataAnalyzer(dl.students)
+    analyser.analyze()
+    analyser.print_results()
 
-if __name__ == "__main__":    main()
-
-#Practice 6
-#D1
+    saver = ResultSaver(analyser.result, folder, 'output/result.json')
+    saver.save_json()
 
 
-    
-    
+if __name__ == "__main__":
+    main()
 
