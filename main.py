@@ -64,6 +64,7 @@ class DataLoader:
         for student in self.students[:n]:
             print(f"{student['student_id']} | {student['age']} | {student['gender']} | {student['country']} | GPA: {student['GPA']}")
         print("-" * 30)
+        print(" ")
 
 #task 3
 
@@ -81,7 +82,7 @@ class DataAnalyzer:
             except ValueError:
                 print(f"Warning: could not convert value for student {s.get('student_id')} — skipping row.")
                 continue
-        sorted_students = sorted(valid_students, key=lambda x: x['final_exam_score'], reverse=True)
+        sorted_students = sorted(valid_students, key = lambda x: x['final_exam_score'], reverse = True)
         self.result = {"top10": sorted_students[:10],}
         return self.result
     
@@ -93,6 +94,24 @@ class DataAnalyzer:
         for i in range(len(self.result.get("top10", []))):
             s = self.result.get("top10", [])[i]
             print(f"{i+1}. {s['student_id']} | {s['country']} | {s['major']} | Score: {s['final_exam_score']} | GPA: {s['GPA']}")
+        print("-" * 30)
+        print(" ")
+
+    def lambda_map_filter_demo(self):
+        print("-" * 30)
+        print("Lambda / Map / Filter")
+        print("-" * 30)
+
+        top_scorers = list(filter(lambda s: float(s['final_exam_score']) > 95, self.students))
+        print(f"final_exam_score > 95 : {len(top_scorers)}")
+
+        gpa_values = list(map(lambda s: float(s['GPA']), self.students))
+        print(f"GPA values (first 5) : {gpa_values[:5]}")
+
+        good_assignments = list(filter(lambda s: float(s['assignment_score']) > 90, self.students))
+        print(f"assignment_score > 90 : {len(good_assignments)}")
+
+        print("-" * 30)
 
 #task 4
 
@@ -131,6 +150,7 @@ def main():
     analyser = DataAnalyzer(dl.students)
     analyser.analyze()
     analyser.print_results()
+    analyser.lambda_map_filter_demo()
 
     saver = ResultSaver(analyser.result, folder, 'output/result.json')
     saver.save_json()
@@ -138,4 +158,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
